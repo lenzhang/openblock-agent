@@ -4,8 +4,15 @@
   "version": "1.0.0",
   "description": "OpenBlock agent provide link and resource services",
   "main": "src/index.js",
-  "author": "OpenBlock.cc Team",
+  "author": {
+    "name": "OpenBlock.cc Team",
+    "email": "team@openblock.cc"
+  },
   "license": "MIT",
+  "engines": {
+    "node": ">=18.20.5",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "i18n:src": "mkdirp translations && format-message extract --out-file translations/en.json src/**.js",
@@ -21,6 +28,11 @@
     "build:pack": "electron-builder --dir",
     "dist": "npm run clean && npm run fetch:all && electron-builder",
     "dist32": "npm run clean && npm run fetch:all32 && electron-builder --ia32",
+    "dist:arm64": "npm run clean && npm run fetch:all && electron-builder --arm64",
+    "dist:universal": "npm run clean && npm run fetch:all && electron-builder --universal",
+    "dist:simple": "rimraf ./dist && node build-cross-platform.js",
+    "build:all": "node build-multiplatform.js",
+    "build:docker": "node build-docker.js",
     "clean": "rimraf ./dist ./external-resources ./tools ./firmwares ./drivers",
     "lint": "eslint ./src",
     "test": ""
@@ -42,23 +54,27 @@
   },
   "homepage": "https://github.com/openblockcc/openblock-agent#readme",
   "dependencies": {
-    "del": "^6.0.0",
-    "electron-progressbar": "^2.0.1",
-    "openblock-l10n": "^3.10.20211007020944",
-    "openblock-link": "0.1.0-prerelease.20211006073349",
-    "openblock-resource": "0.1.0-prerelease.20210918043733",
-    "os-locale": "^5.0.0",
-    "node-localstorage": "^2.2.1"
+    "electron-progressbar": "^2.2.1",
+    "node-localstorage": "^2.2.1",
+    "openblock-l10n": "git+https://github.com/lenzhang/openblock-l10n.git",
+    "openblock-link": "git+https://github.com/lenzhang/openblock-link.git",
+    "openblock-resource": "git+https://github.com/lenzhang/openblock-resource.git",
+    "os-locale": "^5.0.0"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "compare-versions": "^3.6.0",
-    "electron": "^8.5.5",
-    "electron-builder": "^22.9.1",
-    "eslint": "^5.16.0",
+    "@babel/core": "^7.25.2",
+    "@babel/eslint-parser": "^7.25.1",
+    "@babel/preset-env": "^7.25.4",
+    "compare-versions": "^6.1.1",
+    "electron": "^22.3.27",
+    "electron-builder": "^24.13.3",
+    "eslint": "^9.15.0",
     "eslint-config-scratch": "^5.0.0",
-    "format-message": "^6.2.3",
-    "format-message-cli": "^6.2.3",
-    "rimraf": "^3.0.2"
+    "format-message": "^6.2.4",
+    "format-message-cli": "^6.2.4",
+    "rimraf": "^6.0.1"
+  },
+  "optionalDependencies": {
+    "dmg-license": "^1.0.11"
   }
 }

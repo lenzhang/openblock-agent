@@ -1,3 +1,6 @@
+// 首先加载native模块fallback处理器
+require('./native-modules-fallback');
+
 const {app, BrowserWindow, nativeImage, dialog} = require('electron');
 const electron = require('electron');
 
@@ -5,8 +8,8 @@ const path = require('path');
 const os = require('os');
 const {execFile} = require('child_process');
 const fs = require('fs');
-const compareVersions = require('compare-versions');
-const del = require('del');
+const compareVersions = require('./lib/compare-versions');
+// const del = require('del'); // 将在需要时动态导入
 
 const OpenBlockLink = require('openblock-link');
 const OpenblockResourceServer = require('openblock-resource');
@@ -28,6 +31,7 @@ let mainWindow;
 let appTray;
 let locale = osLocale.sync();
 let resourceServer;
+let linkServer;
 let resourcePath;
 let dataPath;
 let makeTrayMenu = () => {};
@@ -41,7 +45,7 @@ const showOperationFailedMessageBox = err => {
             default: 'Operation failed',
             description: 'Prompt for operation failed'
         }),
-        detail: err
+        detail: typeof err === 'string' ? err : (err?.message || err?.toString() || 'Unknown error')
     });
 };
 
@@ -225,7 +229,14 @@ makeTrayMenu = (l, checkingUpdate = false) => [
             description: 'Menu item to clear cache and restart'
         }),
         click: () => {
-            del.sync(dataPath, {force: true});
+            try {
+                // 使用 Node.js 内置模块删除缓存目录
+                if (fs.existsSync(dataPath)) {
+                    fs.rmSync(dataPath, { recursive: true, force: true });
+                }
+            } catch (err) {
+                console.error('Failed to clear cache:', err);
+            }
             app.relaunch();
             app.exit();
         }
@@ -252,14 +263,16 @@ makeTrayMenu = (l, checkingUpdate = false) => [
         type: 'separator'
     },
     {
-        label: formatMessage({
-            id: 'index.menu.exit',
-            default: 'exit',
-            description: 'Menu item to exit'
-        }),
+        label: '测试点击',
         click: () => {
-            appTray.destroy();
-            mainWindow.destroy();
+            console.log('=== Test click works! ===');
+        }
+    },
+    {
+        label: '退出',
+        click: () => {
+            console.log('=== Tray exit clicked ===');
+            app.quit();
         }
     }
 ];
@@ -345,7 +358,12 @@ const createWindow = () => {
     if (oldVersion) {
         if (compareVersions.compare(appVersion, oldVersion, '>')) {
             if (fs.existsSync(dataPath)) {
-                del.sync([dataPath], {force: true});
+                try {
+                    // 使用同步删除替代方案
+                    fs.rmSync(dataPath, { recursive: true, force: true });
+                } catch (err) {
+                    console.error('Failed to clear data cache:', err);
+                }
             }
             nodeStorage.setItem('version', appVersion);
         }
@@ -360,8 +378,8 @@ const createWindow = () => {
     }
 
     // start link server
-    const link = new OpenBlockLink(dataPath, path.join(resourcePath, 'tools'));
-    link.listen();
+    linkServer = new OpenBlockLink(dataPath, path.join(resourcePath, 'tools'));
+    linkServer.listen();
 
     // start resource server
     resourceServer = new OpenblockResourceServer(dataPath, path.join(resourcePath, 'external-resources'));
@@ -370,10 +388,28 @@ const createWindow = () => {
 
     appTray = new Tray(nativeImage.createFromPath(path.join(__dirname, './icon/OpenBlock-Link.ico')));
     appTray.setToolTip('Openblock Link');
-    appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
+    
+    // 在 macOS 上不设置 contextMenu，改用事件处理
+    if (process.platform !== 'darwin') {
+        // 非 macOS 平台正常设置 contextMenu
+        appTray.setContextMenu(Menu.buildFromTemplate(makeTrayMenu(locale)));
+    }
 
     appTray.on('click', () => {
-        mainWindow.show();
+        if (process.platform === 'darwin') {
+            // macOS 上左键点击显示窗口
+            mainWindow.show();
+        } else {
+            mainWindow.show();
+        }
+    });
+
+    appTray.on('right-click', () => {
+        if (process.platform === 'darwin') {
+            // macOS 上右键点击显示菜单
+            const contextMenu = Menu.buildFromTemplate(makeTrayMenu(locale));
+            appTray.popUpContextMenu(contextMenu);
+        }
     });
 
     mainWindow.on('close', event => {
@@ -398,20 +434,34 @@ if (gotTheLock) {
     });
     app.on('ready', () => {
         createWindow();
-        checkUpdate(false);
+        // 暂时禁用自动检查更新，避免错误
+        // checkUpdate(false);
     });
 } else {
     app.quit();
 }
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    // 不要在这里退出，让托盘控制退出
 });
 
 app.on('activate', () => {
     if (mainWindow === null) {
         createWindow();
+    }
+});
+
+app.on('before-quit', (event) => {
+    console.log('App before-quit event triggered');
+    // 清理托盘
+    if (appTray) {
+        appTray.destroy();
+        appTray = null;
+    }
+    // 确保主窗口也被关闭
+    if (mainWindow) {
+        mainWindow.removeAllListeners('close');
+        mainWindow.destroy();
+        mainWindow = null;
     }
 });

@@ -1,0 +1,42 @@
+npm warn config optional Use `--omit=optional` to exclude optional dependencies, or
+npm warn config `--include=optional` to include them.
+npm warn config
+npm warn config       Default value does install optional deps unless otherwise omitted.
+openblock-agent@1.0.0 /Users/leozhang/workspace/openblock-agent
+├── UNMET DEPENDENCY @babel/core@^7.25.2
+├── UNMET DEPENDENCY @babel/eslint-parser@^7.25.1
+├── UNMET DEPENDENCY @babel/preset-env@^7.25.4
+├── UNMET DEPENDENCY compare-versions@^6.1.1
+├── UNMET DEPENDENCY electron-builder@^24.13.3
+├── UNMET DEPENDENCY electron-progressbar@^2.2.1
+├── UNMET DEPENDENCY electron@^22.3.27
+├── UNMET DEPENDENCY eslint-config-scratch@^5.0.0
+├── UNMET DEPENDENCY eslint@^9.15.0
+├── UNMET DEPENDENCY format-message-cli@^6.2.4
+├── UNMET DEPENDENCY format-message@^6.2.4
+├── UNMET DEPENDENCY node-localstorage@^2.2.1
+├── UNMET DEPENDENCY openblock-l10n@^3.10.20211007020944
+├── UNMET DEPENDENCY openblock-link@0.1.0-prerelease.20211006073349
+├── UNMET DEPENDENCY openblock-resource@0.1.0-prerelease.20210918043733
+├── UNMET DEPENDENCY os-locale@^6.0.2
+└── UNMET DEPENDENCY rimraf@^6.0.1
+
+npm error code ELSPROBLEMS
+npm error missing: @babel/core@^7.25.2, required by openblock-agent@1.0.0
+npm error missing: @babel/eslint-parser@^7.25.1, required by openblock-agent@1.0.0
+npm error missing: @babel/preset-env@^7.25.4, required by openblock-agent@1.0.0
+npm error missing: compare-versions@^6.1.1, required by openblock-agent@1.0.0
+npm error missing: electron-builder@^24.13.3, required by openblock-agent@1.0.0
+npm error missing: electron-progressbar@^2.2.1, required by openblock-agent@1.0.0
+npm error missing: electron@^22.3.27, required by openblock-agent@1.0.0
+npm error missing: eslint-config-scratch@^5.0.0, required by openblock-agent@1.0.0
+npm error missing: eslint@^9.15.0, required by openblock-agent@1.0.0
+npm error missing: format-message-cli@^6.2.4, required by openblock-agent@1.0.0
+npm error missing: format-message@^6.2.4, required by openblock-agent@1.0.0
+npm error missing: node-localstorage@^2.2.1, required by openblock-agent@1.0.0
+npm error missing: openblock-l10n@^3.10.20211007020944, required by openblock-agent@1.0.0
+npm error missing: openblock-link@0.1.0-prerelease.20211006073349, required by openblock-agent@1.0.0
+npm error missing: openblock-resource@0.1.0-prerelease.20210918043733, required by openblock-agent@1.0.0
+npm error missing: os-locale@^6.0.2, required by openblock-agent@1.0.0
+npm error missing: rimraf@^6.0.1, required by openblock-agent@1.0.0
+npm error A complete log of this run can be found in: /Users/leozhang/.npm/_logs/2025-06-16T04_18_49_837Z-debug-0.log

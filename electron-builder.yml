@@ -16,7 +16,10 @@ mac:
   icon: buildResources/OpenblockAgent.icns
   provisioningProfile: embedded.provisionprofile
   target:
-    - dmg
+    - target: dmg
+      arch:
+        - x64
+        - arm64
     # - mas
 dmg:
   title: "OpenBlock Agent ${version}"
@@ -45,15 +48,13 @@ nsis:
 
 linux:
   category: Education
-  icon: buildResources/linux
   desktop:
     - Encoding: UTF-8
     - Name: OpenBlockAgent
-    - Icon: openblock-agent
     - Type: Application
     - Terminal: false
   target:
-    - deb
+    - AppImage
 
 deb:
   depends: ["libnotify4", "libxtst6", "libnss3"]
