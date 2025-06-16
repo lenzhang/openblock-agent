@@ -11,5 +11,8 @@ node_modules/
 # Build dist
 dist/
 
+# Backup releases (downloaded from releases during build)
+backup-releases/
+
 # Mac
 .DS_Store

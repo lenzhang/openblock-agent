@@ -4,7 +4,8 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
-const user = 'openblockcc';
+// 优先尝试从fork下载，失败时降级到原始仓库
+const users = ['lenzhang', 'openblockcc'];
 const repo = 'openblock-driver';
 const outputdir = path.join(__dirname, '../drivers');
 const leaveZipped = false;
@@ -21,10 +22,25 @@ if (!fs.existsSync(outputdir)) {
     fs.mkdirSync(outputdir, {recursive: true});
 }
 
-downloadRelease(user, repo, outputdir, filterRelease, filterAsset, leaveZipped)
-    .then(() => {
-        console.log('Tools download complete');
-    })
-    .catch(err => {
-        console.error(err.message);
-    });
+async function tryDownload() {
+    for (const user of users) {
+        try {
+            console.log(`尝试从 ${user}/${repo} 下载...`);
+            await downloadRelease(user, repo, outputdir, filterRelease, filterAsset, leaveZipped);
+            console.log(`✅ 从 ${user}/${repo} 下载成功！`);
+            console.log('Tools download complete');
+            return;
+        } catch (err) {
+            console.log(`❌ 从 ${user}/${repo} 下载失败: ${err.message}`);
+            if (user === users[users.length - 1]) {
+                // 最后一个用户也失败了
+                throw err;
+            }
+        }
+    }
+}
+
+tryDownload().catch(err => {
+    console.error('所有下载源都失败了:', err.message);
+    process.exit(1);
+});
